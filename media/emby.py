@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class Emby(Media):
-    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player):
-        super().__init__(player, tv, av, config, subPlayer)
+    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player, priPlayer: Player):
+        super().__init__(player, tv, av, config, subPlayer, priPlayer)
         try:
             self._host = config.get('Host')
             self._user_name = config.get('Username')
@@ -41,6 +41,18 @@ class Emby(Media):
             self._played_info = {}
         except Exception as e:
             raise MediaException(e)
+
+    def get_player(self, **kwargs):
+        """
+        获取播放器
+        :param kwargs:
+        :return:
+        """
+        if self._priPlayer.is_on_line():
+            return self._priPlayer, "priPlayer"
+        if self._player.is_on_line():
+            return self._player, "player"
+        return None
 
     def _get_headers(self):
         """
@@ -459,7 +471,8 @@ class Emby(Media):
         调用player播放器
         :return:
         """
-        if self._player is None:
+        _online_player, _pri_player_flag = self.get_player()
+        if _online_player is None:
             logger.error("no player is ready")
             return False
         if self._play_item is None:
@@ -471,9 +484,10 @@ class Emby(Media):
         for block_session in self._block_sessions:
             self._session_playing_stop(block_session["Id"])
         # 播放
-        return self._player.play(self._play_item["Path"], self._play_item.get("Container", "iso"),
+        kw_player = {_pri_player_flag: 1}
+        return _online_player.play(self._play_item["Path"], self._play_item["Container"],
                                  self.on_message, self.on_play_begin,
-                                 self.on_play_in_progress, self.on_play_end)
+                                 self.on_play_in_progress, self.on_play_end, **kw_player)
 
 
 
@@ -492,7 +506,7 @@ class Emby(Media):
         # 播放
         self._subPlayer.play(self._play_item["Path"], self._play_item.get("Container", "mkv"),
                                  self.on_message, self.on_play_begin,
-                                 self.on_play_in_progress, self.on_play_end)
+                                 self.on_play_in_progress, self.on_play_end, subPlayer=1)
 
         # 阻止正在串流的播放
         if self._get_all_sessions() is not True:
@@ -540,18 +554,12 @@ class Emby(Media):
         # 然后通知tv,av
         if self._tv is not None:
             try:
-                if 'subPlayer' in kwargs:
-                    self._tv.play_begin(self.on_message, subPlayer=1)
-                else:
-                    self._tv.play_begin(self.on_message)
+                self._tv.play_begin(self.on_message, **kwargs)
             except Exception as e:
                 logger.error(f"Exception during tv play begin: {e}")
         if self._av is not None:
             try:
-                if 'subPlayer' in kwargs:
-                    self._av.play_begin(self.on_message, subPlayer=1)
-                else:
-                    self._av.play_begin(self.on_message)
+                self._av.play_begin(self.on_message, **kwargs)
             except Exception as e:
                 logger.error(f"Exception during av play begin: {e}")
 
@@ -606,6 +614,10 @@ class Emby(Media):
         # 初始化启动其他设备
         if self._player is not None:
             self._player.start_before()
+        if self._priPlayer is not None:
+            self._priPlayer.start_before()
+        if self._subPlayer is not None:
+            self._subPlayer.start_before()
         if self._tv is not None:
             self._tv.start_before()
         if self._av is not None:

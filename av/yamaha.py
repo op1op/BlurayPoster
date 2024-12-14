@@ -1,5 +1,5 @@
 """
-Yamaha 苏州
+Yamaha 功放
 """
 import time
 import requests
@@ -20,11 +20,31 @@ class Yamaha(AV):
             self._ip = self._config.get('IP')
             self._play_start_uri = self._config.get('PlayStartUri')
             self._sub_play_start_uri = self._config.get('SubPlayStartUri')
+            self._pri_play_start_uri = self._config.get('priPlayStartUri')
             self._play_stop_uri = self._config.get('PlayStopUri')
             self._uri = "http://{}/".format(self._ip)
         except Exception as e:
             raise AVException(e)
+    def _change_scene(self, scene):
+        """
+        /YamahaExtendedControl/v1/main/recallScene?num=3
+        :param scene:
+        :return:
+        """
+        try:
+            url = self._uri + "YamahaExtendedControl/v1/main/recallScene?{}".format(scene)
+            header = {
+                "Accept": "*/*"
+            }
 
+            res = requests.get(url=url, headers=header)
+            if res.status_code == 200:
+                ret = res.json()
+                if ret["response_code"] == 0:
+                    return True
+        except Exception as e:
+            logger.error("change hdmi error: {}".format(e))
+        return False
     def _change_hdmi(self, hdmi):
         """
         修改hdmi输入
@@ -84,16 +104,34 @@ class Yamaha(AV):
         if "subPlayer" in kwargs:
             if self._sub_play_start_uri is None:
                 return
+            if "num" in self._sub_play_start_uri:
+                self._change_scene(self._sub_play_start_uri)
+                return
             self._change_hdmi(self._sub_play_start_uri)
             return
 
+        if "priPlayer" in kwargs:
+            if self._pri_play_start_uri is None:
+                return
+            if "num" in self._pri_play_start_uri:
+                self._change_scene(self._pri_play_start_uri)
+                return
+            self._change_hdmi(self._pri_play_start_uri)
+            return
+
         if self._play_start_uri is None:
+            return
+        if "num" in self._play_start_uri:
+            self._change_scene(self._play_start_uri)
             return
         self._change_hdmi(self._play_start_uri)
 
 
     def play_end(self, on_message, **kwargs):
         if self._play_stop_uri is None:
+            return
+        if "num" in self._play_stop_uri:
+            self._change_scene(self._play_stop_uri)
             return
         self._change_hdmi(self._play_stop_uri)
 

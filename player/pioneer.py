@@ -66,6 +66,9 @@ class Pioneer(Player):
         except Exception as e:
             raise PlayerException(e)
 
+    def is_on_line(self, **kwargs):
+        return self._online_status
+
     @staticmethod
     def dict_to_url_encoded_json(data: dict) -> str:
         return urllib.parse.quote(json.dumps(data))
@@ -161,7 +164,7 @@ class Pioneer(Player):
                         self._offline_count = 0
                         logger.debug("set online status to 0")
 
-    def _track_play_status(self):
+    def _track_play_status(self, **kwargs):
         """
         跟踪播放进度
         :return:
@@ -185,7 +188,7 @@ class Pioneer(Player):
                 if "elapsetime" in play_info["result"]:
                     self._play_status = 1
                     logger.debug("set playing status to 1")
-                    self._on_play_begin()
+                    self._on_play_begin(**kwargs)
                 elif time.time() - last_qry_time > timeout:
                     break
                 else:
@@ -303,6 +306,6 @@ class Pioneer(Player):
         self._on_play_begin = on_play_begin
         self._on_play_in_progress = on_play_in_progress
         self._on_play_end = on_play_end
-        thread = threading.Thread(target=self._track_play_status)
+        thread = threading.Thread(target=self._track_play_status, kwargs=kwargs)
         thread.daemon = True
         thread.start()

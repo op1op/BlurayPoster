@@ -44,6 +44,9 @@ class Coreelec(Player):
         except Exception as e:
             raise PlayerException(e)
 
+    def is_on_line(self, **kwargs):
+        pass
+
     @staticmethod
     def dict_to_url_encoded_json(data: dict) -> str:
         return urllib.parse.quote(json.dumps(data))
@@ -83,7 +86,7 @@ class Coreelec(Player):
             logger.error(f"get samba share folder failed, error: {e}")
         return None
 
-    def _track_play_status(self):
+    def _track_play_status(self, **kwargs):
         """
         跟踪播放进度
         :return:
@@ -107,10 +110,8 @@ class Coreelec(Player):
                 if play_info["result"]["speed"] == 1:
                     self._play_status = 1
                     logger.debug("set playing status to 1")
-                    if self._subPlayer is True:
-                        self._on_play_begin(subPlayer=1)
-                    else:
-                        self._on_play_begin()
+                    self._on_play_begin(**kwargs)
+
                 elif time.time() - last_qry_time > timeout:
                     break
                 else:
@@ -267,6 +268,6 @@ class Coreelec(Player):
         self._on_play_begin = on_play_begin
         self._on_play_in_progress = on_play_in_progress
         self._on_play_end = on_play_end
-        thread = threading.Thread(target=self._track_play_status)
+        thread = threading.Thread(target=self._track_play_status, kwargs=kwargs)
         thread.daemon = True
         thread.start()

@@ -32,8 +32,13 @@ class Oppo(Player):
             self._position_ticks = 0
             self._total_ticks = 0
             self._play_status = -1
+            self._online_status = 1
+            self._offline_count = 0
         except Exception as e:
             raise PlayerException(e)
+
+    def is_on_line(self, **kwargs):
+        return self._online_status
 
     def _open_oppo_http(self):
         """
@@ -433,7 +438,7 @@ class Oppo(Player):
             logger.error(f"get samba share folder failed, error: {e}")
         return None
 
-    def _track_play_status(self):
+    def _track_play_status(self, **kwargs):
         """
         跟踪播放进度
         :return:
@@ -453,7 +458,7 @@ class Oppo(Player):
             if self._play_status == 0:
                 if global_info["is_video_playing"] is True:
                     self._play_status = 1
-                    self._on_play_begin()
+                    self._on_play_begin(**kwargs)
             elif self._play_status == 1:
                 if global_info["is_video_playing"] is True:
                     if time.time() - last_report_time > 60:
@@ -477,10 +482,14 @@ class Oppo(Player):
         while True:
             try:
                 if self._open_oppo_http() is True and self._sign_in() is True:
+                    self._online_status = 1
                     device_list = self._get_device_list()
                     if device_list is not None and len(device_list) > 0:
                         self._device_list = device_list
+                else:
+                    self._online_status = 0
             except Exception as e:
+                self._online_status = 0
                 logger.error(f"get device_list exception, error: {e}")
             finally:
                 time.sleep(5)
@@ -562,6 +571,6 @@ class Oppo(Player):
         self._on_play_begin = on_play_begin
         self._on_play_in_progress = on_play_in_progress
         self._on_play_end = on_play_end
-        thread = threading.Thread(target=self._track_play_status)
+        thread = threading.Thread(target=self._track_play_status, kwargs=kwargs)
         thread.daemon = True
         thread.start()

@@ -33,6 +33,10 @@ class Player(ABC):
              on_play_in_progress, on_play_end, **kwargs):
         pass
 
+    @abstractmethod
+    def is_on_line(self, **kwargs):
+        pass
+
 
 class TVException(Exception):
     """
@@ -105,12 +109,17 @@ class Media(ABC):
     """
     媒体基类
     """
-    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player):
+    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player, priPlayer: Player):
         self._player = player
         self._tv = tv
         self._av = av
         self._config = config
         self._subPlayer = subPlayer
+        self._priPlayer = priPlayer
+
+    @abstractmethod
+    def get_player(self, **kwargs):
+        pass
 
     @abstractmethod
     def start_before(self, **kwargs):
