@@ -73,9 +73,9 @@ class Coreelec(Player):
                                                                                                 "position", "totaltime",
                                                                                                 "time", "percentage",
                                                                                                 "shuffled", "repeat",
-                                                                                                "canrepeat",
                                                                                                 "canshuffle", "canseek",
-                                                                                                "partymode"]],
+                                                                                                "partymode"
+                                                                                                ]],
                              "id": 1}]
             res = requests.post(self._http_host, headers=self._headers, data=json.dumps(request_body))
             if res.status_code == 200:
@@ -118,12 +118,12 @@ class Coreelec(Player):
                     continue
             elif self._play_status == 1:
                 if not (play_info["result"]["speed"] == 0 and play_info["result"]["position"] == -1):
+
                     if time.time() - last_report_time > 60:
                         total_hours = play_info["result"]["totaltime"]["hours"]
                         total_minutes = play_info["result"]["totaltime"]["minutes"]
                         total_seconds = play_info["result"]["totaltime"]["seconds"]
                         total_milliseconds = play_info["result"]["totaltime"]["milliseconds"]
-
                         elapse_hours = play_info["result"]["time"]["hours"]
                         elapse_minutes = play_info["result"]["time"]["minutes"]
                         elapse_seconds = play_info["result"]["time"]["seconds"]
