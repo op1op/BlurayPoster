@@ -471,7 +471,7 @@ class Emby(Media):
         for block_session in self._block_sessions:
             self._session_playing_stop(block_session["Id"])
         # 播放
-        return self._player.play(self._play_item["Path"], self._play_item["Container"],
+        return self._player.play(self._play_item["Path"], self._play_item.get("Container", "iso"),
                                  self.on_message, self.on_play_begin,
                                  self.on_play_in_progress, self.on_play_end)
 
@@ -490,7 +490,7 @@ class Emby(Media):
             logger.error("no video info")
             return False
         # 播放
-        self._subPlayer.play(self._play_item["Path"], self._play_item["Container"],
+        self._subPlayer.play(self._play_item["Path"], self._play_item.get("Container", "mkv"),
                                  self.on_message, self.on_play_begin,
                                  self.on_play_in_progress, self.on_play_end)
 
