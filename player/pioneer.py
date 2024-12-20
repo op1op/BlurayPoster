@@ -34,7 +34,7 @@ class Pioneer(Player):
 
             self._startup_key_sequence = self._config.get('StartupKeySequence', [])
             self._startup_wait = self._config.get('StartupWait', 5)
-            self._online_status = 1
+            self._online_status = 0
             self._offline_count = 0
 
             self._on_message = None

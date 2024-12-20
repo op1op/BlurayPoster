@@ -32,7 +32,7 @@ class Oppo(Player):
             self._position_ticks = 0
             self._total_ticks = 0
             self._play_status = -1
-            self._online_status = 1
+            self._online_status = 0
             self._offline_count = 0
         except Exception as e:
             raise PlayerException(e)

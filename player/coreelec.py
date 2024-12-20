@@ -45,7 +45,13 @@ class Coreelec(Player):
             raise PlayerException(e)
 
     def is_on_line(self, **kwargs):
-        pass
+        try:
+            play_info = self._get_play_info()
+            if play_info is not None:
+                return 1
+        except Exception as e:
+            logger.error(f"test device is online fail, error: {e}")
+        return 0
 
     @staticmethod
     def dict_to_url_encoded_json(data: dict) -> str:
