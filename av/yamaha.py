@@ -20,7 +20,7 @@ class Yamaha(AV):
             self._ip = self._config.get('IP')
             self._play_start_uri = self._config.get('PlayStartUri')
             self._sub_play_start_uri = self._config.get('SubPlayStartUri')
-            self._pri_play_start_uri = self._config.get('priPlayStartUri')
+            self._pri_play_start_uri = self._config.get('PriPlayStartUri')
             self._play_stop_uri = self._config.get('PlayStopUri')
             self._uri = "http://{}/".format(self._ip)
         except Exception as e:
