@@ -16,7 +16,8 @@ class SonyBravia(TV):
             self._ip = self._config.get('IP', None)
             self._key = self._config.get('Key', None)
             self._hdmi = self._config.get('HDMI', 1)
-            self._subHdmi = self._config.get('SubHDMI', 1)
+            self._subHdmi = self._config.get('SubHDMI', 2)
+            self._priHdmi = self._config.get('PriHDMI', 3)
             self._play_stop_uri = self._config.get('PlayStopUri', None)
             self._uri = "http://{}/sony/".format(self._ip)
             self._app_list = []
@@ -285,6 +286,9 @@ class SonyBravia(TV):
             return False
         if 'subPlayer' in kwargs:
             self._change_hdmi(self._subHdmi)
+            return
+        if 'priPlayer' in kwargs:
+            self._change_hdmi(self._priHdmi)
             return
         self._change_hdmi(self._hdmi)
 
