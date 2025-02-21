@@ -16,6 +16,7 @@ class Hdfury(TV):
             self._hdmi = self._config.get('HDMI', 1)
             self._subHdmi = self._config.get('SubHDMI', 2)
             self._priHdmi = self._config.get('PriHDMI', 4)
+            self._subPriHdmi = self._config.get('SubPriHDMI', 2)
             self._play_stop_uri = self._config.get('PlayStopUri', None)
             self._uri = "http://{}/".format(self._ip)
         except Exception as e:
@@ -63,6 +64,9 @@ class Hdfury(TV):
         """
         if 'subPlayer' in kwargs:
             self._change_hdmi(self._subHdmi)
+            return
+        if 'subPriPlayer' in kwargs:
+            self._change_hdmi(self._subPriHdmi)
             return
         if 'priPlayer' in kwargs:
             self._change_hdmi(self._priHdmi)

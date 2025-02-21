@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class Emby(Media):
-    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player, priPlayer: Player):
-        super().__init__(player, tv, av, config, subPlayer, priPlayer)
+    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player, priPlayer: Player, subPriPlayer: Player):
+        super().__init__(player, tv, av, config, subPlayer, priPlayer, subPriPlayer)
         try:
             self._host = config.get('Host')
             self._user_name = config.get('Username')
@@ -48,10 +48,16 @@ class Emby(Media):
         :param kwargs:
         :return:
         """
-        if self._priPlayer.is_on_line():
-            return self._priPlayer, "priPlayer"
-        if self._player.is_on_line():
-            return self._player, "player"
+        if 'sub' in kwargs:
+            if self._subPriPlayer.is_on_line():
+                return self._subPriPlayer, "subPriPlayer"
+            if self._subPlayer.is_on_line():
+                return self._subPlayer, "subPlayer"
+        else:
+            if self._priPlayer.is_on_line():
+                return self._priPlayer, "priPlayer"
+            if self._player.is_on_line():
+                return self._player, "player"
         return None
 
     def _get_headers(self):
@@ -253,11 +259,9 @@ class Emby(Media):
                         continue
                     if path.split('.')[-1] in self._exclude_video_ext:
                         logger.info(f"exclude video, path: {path}")
-                        if self._subPlayer is not None:
-                            self._play_item = item
-                            self._run_sub_player()
-                            return
-                        continue
+                        self._play_item = item
+                        self._run_player(sub=1)
+                        return
                     self._play_item = item
                     logger.info(f"prepare to play this video, path: {path}")
                     self._run_player()
@@ -466,12 +470,13 @@ class Emby(Media):
             logger.error(f"Exception during send message: {e}")
         return False
 
-    def _run_player(self):
+    def _run_player(self, **kwargs):
         """
         调用player播放器
         :return:
         """
-        _online_player, _pri_player_flag = self.get_player()
+
+        _online_player, _pri_player_flag = self.get_player(**kwargs)
         if _online_player is None:
             logger.error("no player is ready")
             return False
@@ -485,35 +490,10 @@ class Emby(Media):
             self._session_playing_stop(block_session["Id"])
         # 播放
         kw_player = {_pri_player_flag: 1}
-        return _online_player.play(self._play_item["Path"], self._play_item.get("Container", "iso"),
+        return _online_player.play(self._play_item.get("Path", ""), self._play_item.get("Container", "iso"),
                                  self.on_message, self.on_play_begin,
                                  self.on_play_in_progress, self.on_play_end, **kw_player)
 
-
-
-
-    def _run_sub_player(self):
-        """
-        调用副sub_player播放器
-        :return:
-        """
-        if self._subPlayer is None:
-            logger.error("no player is ready")
-            return False
-        if self._play_item is None:
-            logger.error("no video info")
-            return False
-        # 播放
-        self._subPlayer.play(self._play_item.get("Path", ""), self._play_item.get("Container", "mkv"),
-                                 self.on_message, self.on_play_begin,
-                                 self.on_play_in_progress, self.on_play_end, subPlayer=1)
-
-        # 阻止正在串流的播放
-        if self._get_all_sessions() is not True:
-            return False
-        for block_session in self._block_sessions:
-            self._session_playing_stop(block_session["Id"])
-        return True
 
     def _connect(self):
         """

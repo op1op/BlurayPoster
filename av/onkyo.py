@@ -22,6 +22,7 @@ class Onkyo(AV):
             self._play_start_uri = self._config.get('PlayStartUri')
             self._play_stop_uri = self._config.get('PlayStopUri')
             self._sub_play_start_uri = self._config.get('SubPlayStartUri')
+            self._sub_pri_play_start_uri = self._config.get('SubPriPlayStartUri')
             self._pri_play_start_uri = self._config.get('PriPlayStartUri')
         except Exception as e:
             raise AVException(e)
@@ -34,6 +35,17 @@ class Onkyo(AV):
             if self._sub_play_start_uri is None:
                 return
             steps = str.split(self._sub_play_start_uri, "&")
+            with eiscp.eISCP(self._ip) as receiver:
+                for step in steps:
+                    command, operate = str.split(step, "=")
+                    logger.debug("onkyo play begin command: {}, operate: {}".format(command, operate))
+                    receiver.command('{} {}'.format(command, operate))
+                    time.sleep(0.5)
+            return
+        if "subPriPlayer" in kwargs:
+            if self._sub_pri_play_start_uri is None:
+                return
+            steps = str.split(self._sub_pri_play_start_uri, "&")
             with eiscp.eISCP(self._ip) as receiver:
                 for step in steps:
                     command, operate = str.split(step, "=")

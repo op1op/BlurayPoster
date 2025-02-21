@@ -19,6 +19,7 @@ class LGWebos(TV):
             self._key = self._config.get('Key', None)
             self._hdmi = self._config.get('HDMI', 1)
             self._subHdmi = self._config.get('SubHDMI', 2)
+            self._subPriHdmi = self._config.get('SubPriHDMI', 2)
             self._priHdmi = self._config.get('PriHDMI', 3)
             self._play_stop_uri = self._config.get('PlayStopUri', None)
             self._store = {'client_key': self._key} if self._key is not None else {}
@@ -134,6 +135,9 @@ class LGWebos(TV):
     def play_begin(self, on_message, **kwargs):
         if 'subPlayer' in kwargs:
             self._change_hdmi(self._subHdmi)
+            return
+        if 'subPriPlayer' in kwargs:
+            self._change_hdmi(self._subPriHdmi)
             return
         if 'priPlayer' in kwargs:
             self._change_hdmi(self._priHdmi)

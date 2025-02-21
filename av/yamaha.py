@@ -20,6 +20,7 @@ class Yamaha(AV):
             self._ip = self._config.get('IP')
             self._play_start_uri = self._config.get('PlayStartUri')
             self._sub_play_start_uri = self._config.get('SubPlayStartUri')
+            self._sub_pri_play_start_uri = self._config.get('SubPriPlayStartUri')
             self._pri_play_start_uri = self._config.get('PriPlayStartUri')
             self._play_stop_uri = self._config.get('PlayStopUri')
             self._uri = "http://{}/".format(self._ip)
@@ -108,6 +109,15 @@ class Yamaha(AV):
                 self._change_scene(self._sub_play_start_uri)
                 return
             self._change_hdmi(self._sub_play_start_uri)
+            return
+
+        if "subPriPlayer" in kwargs:
+            if self._sub_pri_play_start_uri is None:
+                return
+            if "num" in self._sub_pri_play_start_uri:
+                self._change_scene(self._sub_pri_play_start_uri)
+                return
+            self._change_hdmi(self._sub_pri_play_start_uri)
             return
 
         if "priPlayer" in kwargs:

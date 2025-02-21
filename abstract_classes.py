@@ -109,13 +109,14 @@ class Media(ABC):
     """
     媒体基类
     """
-    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player, priPlayer: Player):
+    def __init__(self, player: Player, tv: TV, av: AV, config: dict, subPlayer: Player, priPlayer: Player, subPriPlayer: Player):
         self._player = player
         self._tv = tv
         self._av = av
         self._config = config
         self._subPlayer = subPlayer
         self._priPlayer = priPlayer
+        self._subPriPlayer = subPriPlayer
 
     @abstractmethod
     def get_player(self, **kwargs):
