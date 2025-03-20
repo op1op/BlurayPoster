@@ -68,7 +68,7 @@ class Oppo(Player):
                 break
             # 检查是否超时
             if time.time() - start_time > self._udp_timeout:
-                logger.error(f"open the oppo http failed, timeout: {self._udp_timeout}s")
+                logger.debug(f"open the oppo http failed, timeout: {self._udp_timeout}s")
                 break
         sock.close()
         return open_http_success
