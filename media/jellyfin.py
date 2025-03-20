@@ -472,7 +472,16 @@ class Jellyfin(Media):
         for block_session in self._block_sessions:
             self._session_playing_stop(block_session["Id"])
         # 播放
-        return self._player.play(self._play_item["Path"], self._play_item["Container"],
+        container = self._play_item.get("VideoType", "iso")
+        if container == 'BluRay':
+            container = 'bluray'
+        else:
+            container = self._play_item.get("Container", "iso")
+            if 'mkv' in container or 'mp4' in container:
+                container = 'mkv'
+            else:
+                container = 'other'
+        return self._player.play(self._play_item["Path"], container,
                                  self.on_message, self.on_play_begin,
                                  self.on_play_in_progress, self.on_play_end)
 
