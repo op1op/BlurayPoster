@@ -12,7 +12,9 @@ LogLevel: info
 # 媒体库配置
 Media:
   # 引用的媒体库执行器, 不要改
-  Executor: media.emby.Emby
+  # media.emby.Emby
+  # Executor: media.emby.Emby
+  Executor: media.jellyfin.Jellyfin
   # 设备客户端, 不要改
   Client: Emby Bluray Poster
   # 媒体库服务端显示的设备名称， 不要改
