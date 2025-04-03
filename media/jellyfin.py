@@ -111,7 +111,7 @@ class Jellyfin(Media):
             body = {
                 "PlayableMediaTypes": ["Audio", "Video"],
                 "SupportsMediaControl": True,
-                "SupportedCommands": ["Play", "Pause", "Stop"]
+                "SupportedCommands": ["Play", "PlayState", "PlayNext"]
             }
             res = requests.post(url=url, headers=headers, json=body)
             if res.status_code == 204:
