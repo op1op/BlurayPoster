@@ -16,7 +16,7 @@ class OppoHdmi(TV):
         super().__init__(config)
         try:
             self._ip = self._config.get('IP', None)
-            self._hdmi = self._config.get('HDMI', 1)
+            self._hdmi = self._config.get('HDMI', None)
             self._play_stop_uri = self._config.get('PlayStopUri', None)
             self._uri = f"http://{self._ip}:436"
         except Exception as e:
@@ -104,7 +104,14 @@ class OppoHdmi(TV):
         :param kwargs:
         :return:
         """
-        pass
+        if self._hdmi is not None:
+            results = str.split(self._hdmi, "=")
+            key = results[0]
+            value = results[1]
+            if key.lower() == "hdmi":
+                self._change_hdmi_socket(value)
+            if key.lower() == "pass":
+                self._change_hdmi(value)
 
     def play_end(self, on_message, **kwargs):
         """
