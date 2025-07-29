@@ -237,11 +237,18 @@ class Pioneer(Player):
             # 设置请求的 URL 和头部信息
             url = self._http_host
 
+            dev_idx = 0;
+            dev_type = 0;
+
+            if play_type == 8:
+                dev_idx = 3
+                dev_type = 3
+
             request_body = {
                 "method": "Playback.PlayFile",
                 "params": {
-                    "dev_idx": 0,
-                    "dev_type": 0,
+                    "dev_idx": dev_idx,
+                    "dev_type": dev_type,
                     "f_class": play_type,
                     "f_idx": 0,
                     "file": "/mnt/cifs/"+path,
