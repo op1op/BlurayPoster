@@ -181,7 +181,7 @@ class Jellyfin(Media):
                 logger.info("尝试连接 WebSocket...")
 
                 # 启动 WebSocket，并阻塞等待连接断开
-                self._ws.run_forever(ping_interval=30, ping_timeout=10)
+                self._ws.run_forever()
 
                 # 如果 WebSocket 未抛出异常但断开，表示成功连接过
                 logger.warning("WebSocket 已断开，准备清理资源并重连...")
